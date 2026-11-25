@@ -2,33 +2,52 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IOAA Sky Practice</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<h1>IOAA Sky Practice</h1>
-<p>Constellation practice for the IOAA observing round. <a href="#" id="tg">Skyguessr</a> | <a href="#" id="tr">Skyrace</a></p>
-<p id="status">Loading constellation data...</p>
-<div id="slots"></div>
-<hr>
-<section id="guess">
-<div id="row">
- <div class="side" id="left"><b>Field of view</b><br><input type="range" id="fov" min="5" max="180" step="1" value="145"><br>
-  <span id="fovv"></span> <button id="fm">-</button><button id="fp">+</button>
-  <p><label><input type="checkbox" id="tl"> Constellation lines</label><br><label><input type="checkbox" id="tb"> IAU boundaries</label></p></div>
- <canvas id="sky" width="700" height="560"></canvas>
- <div class="side" id="right"><b>Move</b>
-  <div class="pad"><button data-a="y" data-s="1">Up</button><br><button data-a="x" data-s="-1">Left</button><button data-a="x" data-s="1">Right</button><br><button data-a="y" data-s="-1">Down</button></div>
-  <p><b>Rotate</b><br><button data-a="z" data-s="-1">Counter-clockwise</button><br><button data-a="z" data-s="1">Clockwise</button></p>
-  <p>Step: <select id="step"><option>1<option selected>5<option>15<option>30</select> deg</p>
-  <p>You can also drag the sky and use the mouse wheel to zoom.</p></div>
-</div>
-<p>Which constellation contains the circled X?</p>
-<p><input id="ans" size="24" placeholder="Constellation name" autocomplete="off"> <button id="chk">Check</button></p>
-<p id="msg"></p>
-<p><button id="next">Next round</button> <button id="reset">Reset view</button></p>
-<p id="score"></p>
-</section>
-<section id="race" hidden>
-<p>Click through neighbouring constellations from the start to the destination.</p>
-<p>Minimum shortest route (moves): <input type="number" id="minsteps" min="2" max="6" value="2" style="width:3em"> <button id="newrace">New race</button> <button id="restart">Restart race</button></p>
-<div id="rinfo"></div><p id="rbtns"></p><div id="rres"></div>
-</section>
+<header>
+ <div id="menuwrap">
+  <button id="burger" aria-label="Saves menu" aria-expanded="false"><i></i><i></i><i></i></button>
+  <div id="menu" hidden><h2>Save slots</h2><div id="slots"></div></div>
+ </div>
+ <h1>IOAA Sky Practice</h1>
+ <nav><button id="tg" class="on">Skyguessr</button><button id="tr">Skyrace</button></nav>
+ <span id="status">Loading constellation data...</span>
+</header>
+<main>
+<section id="guess"><div class="layout g">
+ <div class="view"><canvas id="sky" width="900" height="900"></canvas></div>
+ <aside>
+  <div class="box"><h2>Answer</h2>
+   <p>Which constellation contains the circled X?</p>
+   <div class="row"><input id="ans" placeholder="Constellation name" autocomplete="off"><button id="chk">Check</button></div>
+   <p id="msg"></p>
+   <div class="row"><button id="next" class="primary">Next round</button><button id="reset">Reset view</button></div>
+   <p id="score"></p></div>
+  <div class="box"><h2>Field of view</h2>
+   <input type="range" id="fov" min="5" max="180" step="1" value="145">
+   <div class="row between"><button id="fm">-</button><span id="fovv"></span><button id="fp">+</button></div></div>
+  <div class="box"><h2>Move and rotate</h2>
+   <div class="ctl">
+    <div class="dpad"><button data-a="y" data-s="1" style="grid-area:1/2" aria-label="Up">&uarr;</button><button data-a="x" data-s="-1" style="grid-area:2/1" aria-label="Left">&larr;</button><button data-a="x" data-s="1" style="grid-area:2/3" aria-label="Right">&rarr;</button><button data-a="y" data-s="-1" style="grid-area:3/2" aria-label="Down">&darr;</button></div>
+    <div class="rot">
+     <button data-a="z" data-s="-1" aria-label="Rotate counter-clockwise"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+     <button data-a="z" data-s="1" aria-label="Rotate clockwise"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+    </div></div>
+   <label>Step <select id="step"><option>1<option selected>5<option>15<option>30</select> degrees</label>
+   <p class="hint">You can also drag the sky and use the mouse wheel to zoom.</p></div>
+  <div class="box"><h2>Overlays</h2>
+   <label><input type="checkbox" id="tl"> Constellation lines</label><br>
+   <label><input type="checkbox" id="tb"> IAU boundaries</label></div>
+ </aside></div></section>
+
+<section id="race" hidden><div class="layout r">
+ <aside>
+  <div class="box"><h2>Race setup</h2>
+   <label>Minimum shortest route <input type="number" id="minsteps" min="2" max="6" value="2"> moves</label>
+   <div class="row"><button id="newrace" class="primary">New race</button><button id="restart">Restart race</button></div></div>
+  <div class="box"><h2>Route</h2><div id="rinfo"></div></div>
+  <div class="box"><h2 id="nexth">Go to</h2><div id="rbtns" class="row"></div><div id="rres"></div></div>
+ </aside>
+ <div class="box chartcol"><h2 id="ctitle"></h2><canvas id="chart" width="1000" height="760"></canvas></div>
+</div></section>
+</main>
 <script src="app.js"></script>
 </body></html>
