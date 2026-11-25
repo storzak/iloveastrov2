@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iloveastro</title><link rel="stylesheet" href="style.css?v=4"></head>
+<title>iloveastro</title><link rel="stylesheet" href="style.css?v=5"></head>
 <body>
 <header>
  <div class="brand">
@@ -30,14 +30,14 @@
      <button data-a="z" data-s="1" aria-label="Rotate clockwise"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
     </div></div>
    <label>Step <select id="step"><option>1<option selected>5<option>15<option>30</select> degrees</label>
-   <p class="hint">You can also drag the sky and use the mouse wheel to zoom.</p></div>
+   <p class="hint">Drag the sky or use the mouse wheel to zoom.</p></div>
   <div class="sec"><h2>Overlays</h2>
    <div class="row"><label><input type="checkbox" id="tl"> Constellation lines</label><label><input type="checkbox" id="tb"> IAU boundaries</label></div></div>
   <div class="sec"><h2>Answer</h2>
    <p>Which constellation contains the circled X?</p>
    <div class="row"><input id="ans" placeholder="Constellation name" autocomplete="off"><button id="chk">Check</button></div>
    <p id="msg"></p>
-   <div class="row"><button id="next" class="primary">Next round</button><button id="reset">Reset view</button></div>
+   <div class="row"><button id="next">Next round</button><button id="reset">Reset view</button></div>
    <p id="score"></p></div>
  </div></div></div>
 
@@ -45,13 +45,13 @@
  <div class="panel">
   <div class="sec"><h2>Race setup</h2>
    <label>Minimum shortest route <input type="number" id="minsteps" min="2" max="6" value="2"> moves</label>
-   <div class="row"><button id="newrace" class="primary">New race</button><button id="restart">Restart race</button></div></div>
+   <div class="row"><button id="newrace">New race</button><button id="restart">Restart race</button></div></div>
   <div class="sec"><h2>Route</h2><div id="rinfo"></div></div>
   <div class="sec"><h2 id="nexth">Go to</h2><div id="rbtns" class="row"></div><div id="rres"></div></div>
  </div>
- <div class="chartcol"><h2>Current constellation (official IAU chart)</h2><div id="chartimgs"></div>
-  <p class="hint">Charts: IAU and Sky &amp; Telescope (Roger Sinnott &amp; Rick Fienberg), CC BY 4.0, from <a href="https://www.iau.org/public/constellations/" target="_blank" rel="noopener">iau.org</a>.</p></div>
+ <div class="chartcol"><h2>Current constellation (IAU chart)</h2><div id="chartimgs"></div>
+  <p class="hint">Charts: IAU and Sky &amp; Telescope (Roger Sinnott &amp; Rick Fienberg), via <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY 4.0.</p></div>
 </div></div>
 </main>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body></html>

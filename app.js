@@ -83,12 +83,14 @@ function newRace(){
  let m=Math.max(2,+$('#minsteps').value||2),a,c=[];
  for(let t=0;t<300&&!c.length;t++){a=pick(ids);const{d}=bfs(a);c=ids.filter(i=>d[i]>=m);if(t==299)m=2}
  Object.assign(R,{start:a,end:pick(c),path:[a],done:false});drawRace()}
-const IAU=['https://www.iau.org/static/public/constellations/gif/','https://iauarchive.eso.org/static/public/constellations/gif/'];
-function chart(id){ /* official IAU / Sky & Telescope chart(s); Serpens has two (Caput, Cauda) */
+const WIKI='https://commons.wikimedia.org/wiki/';
+function chart(id){ /* official IAU / Sky & Telescope charts from Wikimedia Commons ("<Name> IAU.svg") */
  const box=$('#chartimgs');box.innerHTML='';
- for(const code of id==='Ser'?['SER1','SER2']:[id.toUpperCase()]){
-  const im=new Image();let h=0;im.alt='IAU chart for '+C[id].name;im.src=IAU[0]+code+'.gif';
-  im.onerror=()=>{if(++h<IAU.length)im.src=IAU[h]+code+'.gif';else{const p=document.createElement('p');p.innerHTML='The chart could not be loaded. <a href="https://www.iau.org/public/constellations/" target="_blank" rel="noopener">Open the IAU chart page</a> and look up '+C[id].name+'.';im.replaceWith(p)}};
+ for(const nm of id==='Ser'?['Serpens Caput','Serpens Cauda']:[C[id].name]){
+  const files=[...new Set([nm,nm.normalize('NFD').replace(/[\u0300-\u036f]/g,'')])].map(n=>n.replace(/ /g,'_')+'_IAU.svg');
+  const im=new Image();let h=0;const src=i=>WIKI+'Special:FilePath/'+encodeURIComponent(files[i])+'?width=1100';
+  im.alt='IAU chart: '+nm;im.src=src(0);
+  im.onerror=()=>{if(++h<files.length)im.src=src(h);else{const p=document.createElement('p');p.innerHTML='The chart could not be loaded. <a href="'+WIKI+'File:'+encodeURIComponent(files[0])+'" target="_blank" rel="noopener">Open it on Wikimedia Commons</a>.';im.replaceWith(p)}};
   box.append(im)}}
 function drawRace(){
  const cur=R.path[R.path.length-1],nm=i=>C[i].name,b=$('#rbtns');b.innerHTML='';
@@ -129,6 +131,6 @@ function wire(){
  cv.onwheel=e=>{e.preventDefault();setFov(G.fov*(e.deltaY>0?1.1:.91))}}
 (async()=>{
  try{const[b,s,l]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson')]);
-  prep(b,s,l);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v4): ${ids.length} constellations loaded`}
+  prep(b,s,l);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v5): ${ids.length} constellations loaded`}
  catch(e){$('#status').textContent='Error: '+e.message+' (see README)'}
 })();
