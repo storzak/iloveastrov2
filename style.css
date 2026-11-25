@@ -22,11 +22,12 @@ nav{display:flex;gap:8px}
 #slots>div{padding:8px 0;border-top:1px solid #000;font-size:13px}
 #slots .row{margin-top:6px}
 #slots button{padding:4px 10px}
-.layout{display:grid;gap:16px;align-items:start}
-.g{grid-template-columns:minmax(0,1fr) 360px}
-.r{grid-template-columns:360px minmax(0,1fr)}
+.layout{display:flex;gap:16px;align-items:flex-start}
+.panel{flex:0 0 360px;width:360px}
+.view,.chartcol{flex:1 1 0;min-width:0}
 .box,.view{border:1px solid #000;border-radius:8px;padding:14px}
-aside .box{margin-bottom:12px}
+
+.panel .box{margin-bottom:12px}
 .view{display:flex;justify-content:center}
 #sky{display:block;width:min(100%,calc(100vh - 150px));height:auto;aspect-ratio:1;border:1px solid #000;border-radius:50%;touch-action:none;cursor:grab}
 #chart{display:block;width:100%;height:auto;border:1px solid #000;border-radius:4px}
@@ -43,4 +44,4 @@ aside .box{margin-bottom:12px}
 #rinfo{font-size:14px}
 #rres{margin-top:8px}
 label{display:block;margin-bottom:10px}
-@media(max-width:900px){.g,.r{grid-template-columns:1fr}.chartcol{order:-1}#sky{width:min(100%,90vw)}header{flex-wrap:wrap}}
+@media(max-width:900px){.layout{flex-direction:column}.panel{flex:none;width:100%}.view,.chartcol{flex:none;width:100%}.chartcol{order:-1}#sky{width:min(100%,90vw)}header{flex-wrap:wrap}}

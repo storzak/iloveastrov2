@@ -17,3 +17,5 @@ from that repo's `data/` folder into a `data/` folder next to `index.html`; the 
 - Saves (3 slots) use the browser's localStorage, so they stay on the device and browser you used.
 - Neighbours are computed from shared boundary vertices; Serpens is treated as one constellation.
 - Skyrace "at least N moves away" means the shortest route has at least N moves.
+
+If you update an already-deployed copy and still see the old design, hard-refresh (Ctrl+Shift+R). The header shows "Ready (v3)" when the latest script is loaded.

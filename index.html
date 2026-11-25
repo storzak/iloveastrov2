@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>IOAA Sky Practice</title><link rel="stylesheet" href="style.css"></head>
+<title>IOAA Sky Practice</title><link rel="stylesheet" href="style.css?v=3"></head>
 <body>
 <header>
  <div id="menuwrap">
@@ -12,9 +12,9 @@
  <span id="status">Loading constellation data...</span>
 </header>
 <main>
-<section id="guess"><div class="layout g">
+<div id="guess"><div class="layout g">
  <div class="view"><canvas id="sky" width="900" height="900"></canvas></div>
- <aside>
+ <div class="panel">
   <div class="box"><h2>Answer</h2>
    <p>Which constellation contains the circled X?</p>
    <div class="row"><input id="ans" placeholder="Constellation name" autocomplete="off"><button id="chk">Check</button></div>
@@ -34,20 +34,20 @@
    <label>Step <select id="step"><option>1<option selected>5<option>15<option>30</select> degrees</label>
    <p class="hint">You can also drag the sky and use the mouse wheel to zoom.</p></div>
   <div class="box"><h2>Overlays</h2>
-   <label><input type="checkbox" id="tl"> Constellation lines</label><br>
+   <label><input type="checkbox" id="tl"> Constellation lines</label>
    <label><input type="checkbox" id="tb"> IAU boundaries</label></div>
- </aside></div></section>
+ </div></div></div>
 
-<section id="race" hidden><div class="layout r">
- <aside>
+<div id="race" hidden><div class="layout r">
+ <div class="panel">
   <div class="box"><h2>Race setup</h2>
    <label>Minimum shortest route <input type="number" id="minsteps" min="2" max="6" value="2"> moves</label>
    <div class="row"><button id="newrace" class="primary">New race</button><button id="restart">Restart race</button></div></div>
   <div class="box"><h2>Route</h2><div id="rinfo"></div></div>
   <div class="box"><h2 id="nexth">Go to</h2><div id="rbtns" class="row"></div><div id="rres"></div></div>
- </aside>
+ </div>
  <div class="box chartcol"><h2 id="ctitle"></h2><canvas id="chart" width="1000" height="760"></canvas></div>
-</div></section>
+</div></div>
 </main>
-<script src="app.js"></script>
+<script src="app.js?v=3"></script>
 </body></html>

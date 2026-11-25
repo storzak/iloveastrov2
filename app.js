@@ -21,7 +21,7 @@ function prep(b,s,l){
  ids=Object.keys(C).sort();ids.forEach(i=>{adj[i]=new Set();C[i].lab=randPoint(C[i])});
  /* adjacency: neighbours share >=2 boundary vertices (0.6 deg tolerance) */
  const T=Math.cos(.6*D),near=(A,B)=>{let n=0;for(const p of A.verts)for(const q of B.verts)if(dot(p,q)>T){n++;break}return n};
- const link=(a,b)=>{adj[a].add(b);adj[b].add(a)};
+ const link=(a,b)=>{if(adj[a]&&adj[b]){adj[a].add(b);adj[b].add(a)}};
  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){const A=C[ids[i]],B=C[ids[j]];if(near(A,B)>=2&&near(B,A)>=2)link(A.id,B.id)}
  link('UMi','Cep');
  stars=s.features.map(f=>({v:vec(f.geometry.coordinates[0],f.geometry.coordinates[1]),m:f.properties.mag??5}));
@@ -133,6 +133,6 @@ function wire(){
  cv.onwheel=e=>{e.preventDefault();setFov(G.fov*(e.deltaY>0?1.1:.91))}}
 (async()=>{
  try{const[b,s,l]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson')]);
-  prep(b,s,l);wire();slots();newRound();newRace();$('#status').textContent=`Ready: ${ids.length} constellations loaded`}
+  prep(b,s,l);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v3): ${ids.length} constellations loaded`}
  catch(e){$('#status').textContent='Error: '+e.message+' (see README)'}
 })();
