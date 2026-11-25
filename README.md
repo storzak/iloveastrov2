@@ -19,3 +19,9 @@ from that repo's `data/` folder into a `data/` folder next to `index.html`; the 
 - Skyrace "at least N moves away" means the shortest route has at least N moves.
 
 If you update an already-deployed copy and still see the old design, hard-refresh (Ctrl+Shift+R). The header shows "Ready (v3)" when the latest script is loaded.
+
+## IAU charts (Skyrace)
+Skyrace shows the official IAU / Sky & Telescope constellation charts (CC BY 4.0), loaded straight from iau.org.
+The chart address is the `IAU` array near the top of the Skyrace section in `app.js`
+(`.../static/public/constellations/gif/<ABBR>.gif`, Serpens uses `SER1` and `SER2`). If a chart does not load,
+check the file names on https://www.iau.org/public/constellations/ and edit that one line.

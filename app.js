@@ -18,7 +18,7 @@ function prep(b,s,l){
   if(p.id==='Ser')c.name='Serpens'; /* data has Caput and Cauda as two features: merged */
   for(const poly of f.geometry.coordinates){const ring=poly[0],d=dens(ring);c.polys.push(ring);c.dense.push(d);borders.push(d);
    for(const q of ring){const k=((q[0]%360)+360)%360+'|'+q[1];if(!c.seen.has(k)){c.seen.add(k);c.verts.push(vec(q[0],q[1]))}}}}
- ids=Object.keys(C).sort();ids.forEach(i=>{adj[i]=new Set();C[i].lab=randPoint(C[i])});
+ ids=Object.keys(C).sort();ids.forEach(i=>{adj[i]=new Set()});
  /* adjacency: neighbours share >=2 boundary vertices (0.6 deg tolerance) */
  const T=Math.cos(.6*D),near=(A,B)=>{let n=0;for(const p of A.verts)for(const q of B.verts)if(dot(p,q)>T){n++;break}return n};
  const link=(a,b)=>{if(adj[a]&&adj[b]){adj[a].add(b);adj[b].add(a)}};
@@ -83,21 +83,17 @@ function newRace(){
  let m=Math.max(2,+$('#minsteps').value||2),a,c=[];
  for(let t=0;t<300&&!c.length;t++){a=pick(ids);const{d}=bfs(a);c=ids.filter(i=>d[i]>=m);if(t==299)m=2}
  Object.assign(R,{start:a,end:pick(c),path:[a],done:false});drawRace()}
-function drawChart(id){
- const c=C[id];let s=[0,0,0],n=0;for(const a of c.dense)for(const v of a){s[0]+=v[0];s[1]+=v[1];s[2]+=v[2];n++}
- const f=Math.hypot(...s)/n<.1?vec(c.lab[0],c.lab[1]):nrm(s);
- let r=0;for(const a of c.dense)for(const v of a)r=Math.max(r,Math.acos(Math.min(1,dot(f,v))));
- const fov=Math.min(170,Math.max(25,2*r/D*1.2+8)),W=1000,H=760;
- $('#ctitle').textContent='IAU chart: '+c.name;
- sky($('#chart').getContext('2d'),W,H,look(f),fov,{bounds:true,lines:true,
-  under:(cx,P)=>{for(const a of c.dense){const pts=a.map(P);if(pts.some(p=>!p))continue;cx.beginPath();pts.forEach((p,i)=>i?cx.lineTo(p[0],p[1]):cx.moveTo(p[0],p[1]));cx.closePath();cx.fillStyle='rgba(0,0,0,.09)';cx.fill()}},
-  over:(cx,P)=>{path(cx,c.dense,P,'#000',3.5);cx.textAlign='center';cx.textBaseline='middle';
-   for(const i of ids){const p=P(vec(C[i].lab[0],C[i].lab[1]));if(!p||p[0]<30||p[0]>W-30||p[1]<14||p[1]>H-14)continue;
-    cx.font=(i===id?'bold 17px':'14px')+' Arial';cx.lineWidth=4;cx.strokeStyle='#fff';cx.strokeText(C[i].name,p[0],p[1]);cx.fillStyle='#000';cx.fillText(C[i].name,p[0],p[1])}}})}
+const IAU=['https://www.iau.org/static/public/constellations/gif/','https://iauarchive.eso.org/static/public/constellations/gif/'];
+function chart(id){ /* official IAU / Sky & Telescope chart(s); Serpens has two (Caput, Cauda) */
+ const box=$('#chartimgs');box.innerHTML='';
+ for(const code of id==='Ser'?['SER1','SER2']:[id.toUpperCase()]){
+  const im=new Image();let h=0;im.alt='IAU chart for '+C[id].name;im.src=IAU[0]+code+'.gif';
+  im.onerror=()=>{if(++h<IAU.length)im.src=IAU[h]+code+'.gif';else{const p=document.createElement('p');p.innerHTML='The chart could not be loaded. <a href="https://www.iau.org/public/constellations/" target="_blank" rel="noopener">Open the IAU chart page</a> and look up '+C[id].name+'.';im.replaceWith(p)}};
+  box.append(im)}}
 function drawRace(){
  const cur=R.path[R.path.length-1],nm=i=>C[i].name,b=$('#rbtns');b.innerHTML='';
  $('#rinfo').innerHTML=`Start: <b>${nm(R.start)}</b><br>Destination: <b>${nm(R.end)}</b><br>Current: <b>${nm(cur)}</b><br>Moves so far: ${R.path.length-1}<br>Path so far: ${R.path.map(nm).join(' &gt; ')}`;
- drawChart(cur);
+ chart(cur);
  if(R.done){const{p}=bfs(R.start),s=[R.end];while(s[0]!==R.start)s.unshift(p[s[0]]);const n=R.path.length;
   $('#nexth').textContent='Destination reached';
   $('#rres').innerHTML=`<p>You went through ${n} constellations (${n-1} moves), start and destination included.</p><p>The shortest possible is ${s.length} constellations (${s.length-1} moves).</p><p>Suggested shortest path: ${s.map(nm).join(' &gt; ')}</p>${n===s.length?'<p><b>You found a shortest path.</b></p>':''}`;return}
@@ -133,6 +129,6 @@ function wire(){
  cv.onwheel=e=>{e.preventDefault();setFov(G.fov*(e.deltaY>0?1.1:.91))}}
 (async()=>{
  try{const[b,s,l]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson')]);
-  prep(b,s,l);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v3): ${ids.length} constellations loaded`}
+  prep(b,s,l);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v4): ${ids.length} constellations loaded`}
  catch(e){$('#status').textContent='Error: '+e.message+' (see README)'}
 })();
