@@ -10,10 +10,17 @@ key=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/
 clone=o=>JSON.parse(JSON.stringify(o));
 
 /* ---------- data (tries ./data/ first, then jsDelivr) ---------- */
-async function load(f){for(const u of ['data/'+f,CDN+f]){try{const r=await fetch(u);if(r.ok)return await r.json()}catch(e){}}throw new Error('Could not load '+f)}
+async function fetchFirst(urls,json){for(const u of urls){try{const r=await fetch(u);if(r.ok)return json?await r.json():await r.text()}catch(e){}}throw new Error('Could not load '+urls[urls.length-1])}
+const load=f=>fetchFirst(['data/'+f,CDN+f],true);
+/* Sky & Telescope line patterns (the ones on the IAU charts): Stellarium "modern_st" sky culture, pairs of Hipparcos numbers */
+const STEL='eb47095a9282cf6b981f6e37fe1ea3a3ae0fd167',FAB='skycultures/modern_st/constellationship.fab';
+const loadFab=()=>fetchFirst(['data/constellationship.fab','https://raw.githubusercontent.com/Stellarium/stellarium/'+STEL+'/'+FAB,'https://cdn.jsdelivr.net/gh/Stellarium/stellarium@'+STEL+'/'+FAB],false);
+const hip={},segs=[];
+function parseFab(t){for(const ln of t.split('\n')){if(ln[0]==='#')continue;const n=ln.trim().split(/\s+/).slice(2).filter(x=>/^\d+$/.test(x)).map(Number);for(let i=0;i+1<n.length;i+=2)segs.push([n[i],n[i+1]])}}
+function buildLines(){lines=segs.filter(s=>hip[s[0]]&&hip[s[1]]).map(s=>[vec(hip[s[0]][0],hip[s[0]][1]),vec(hip[s[1]][0],hip[s[1]][1])])}
 const C={};let ids=[],adj={},stars=[],lines=[],borders=[];
 function dens(r){const o=[];for(let i=0;i<r.length-1;i++){const a=r[i],b=r[i+1],n=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0])*Math.cos((a[1]+b[1])*D/2),Math.abs(b[1]-a[1]))/2));for(let j=0;j<n;j++)o.push(vec(a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n))}o.push(vec(r[r.length-1][0],r[r.length-1][1]));return o}
-function prep(b,s,l){
+function prep(b,s,l,fab){
  for(const f of b.features){const p=f.properties,c=C[p.id]||(C[p.id]={id:p.id,name:p.name,polys:[],verts:[],dense:[],seen:new Set()});
   if(p.id==='Ser')c.name='Serpens'; /* data has Caput and Cauda as two features: merged */
   for(const poly of f.geometry.coordinates){const ring=poly[0],d=dens(ring);c.polys.push(ring);c.dense.push(d);borders.push(d);
@@ -25,7 +32,15 @@ function prep(b,s,l){
  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){const A=C[ids[i]],B=C[ids[j]];if(near(A,B)>=2&&near(B,A)>=2)link(A.id,B.id)}
  link('UMi','Cep');
  stars=s.features.map(f=>({v:vec(f.geometry.coordinates[0],f.geometry.coordinates[1]),m:f.properties.mag??5}));
- for(const f of l.features){const g=f.geometry;(g.type==='MultiLineString'?g.coordinates:[g.coordinates]).forEach(ls=>lines.push(ls.map(q=>vec(q[0],q[1]))))}
+ const hipOf=f=>+(f.id??f.properties.id??f.properties.hip);
+ const legacy=()=>{for(const f of l.features){const g=f.geometry;(g.type==='MultiLineString'?g.coordinates:[g.coordinates]).forEach(ls=>lines.push(ls.map(q=>vec(q[0],q[1]))))}};
+ if(!fab)return legacy();
+ parseFab(fab);const need=new Set(segs.flat());
+ for(const f of s.features){const h=hipOf(f);if(need.has(h))hip[h]=f.geometry.coordinates}
+ buildLines();
+ if(!lines.length){segs.length=0;return legacy()} /* ids not matched: use the standard lines instead */
+ if(segs.some(x=>!hip[x[0]]||!hip[x[1]])) /* a few pattern stars are fainter than mag 6: fetch the mag-8 catalogue just for them */
+  fetchFirst(['data/stars.8.min.geojson',CDN+'stars.8.min.geojson'],true).then(j=>{for(const f of j.features){const h=hipOf(f);if(need.has(h)&&!hip[h])hip[h]=f.geometry.coordinates}buildLines();draw()}).catch(()=>{})
 }
 const keys=c=>c.k||(c.k=[key(c.name),key(c.id),...(c.id==='Ser'?['serpenscaput','serpenscauda']:[])]);
 function inside(poly,x,y){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>y)!=(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
@@ -46,7 +61,7 @@ function sky(cx,W,H,cam,fov,o){
  cx.fillStyle='#fff';cx.fillRect(0,0,W,H);if(o.under)o.under(cx,P);
  cx.fillStyle='#000';const gam=Math.min(2,Math.pow(145/fov,.25));
  for(const s of stars){const p=P(s.v);if(!p||p[0]<-8||p[0]>W+8||p[1]<-8||p[1]>H+8)continue;cx.beginPath();cx.arc(p[0],p[1],Math.max(.75,(6.3-s.m)*.675*gam),0,7);cx.fill()}
- if(o.lines)path(cx,lines,P,'#8a8a8a',1.2);
+ if(o.lines)path(cx,lines,P,'#555',1.5);
  if(o.bounds)path(cx,borders,P,'#000',1);
  if(o.over)o.over(cx,P);
 }
@@ -130,7 +145,7 @@ function wire(){
  cv.onpointerup=cv.onpointercancel=()=>drag=null;
  cv.onwheel=e=>{e.preventDefault();setFov(G.fov*(e.deltaY>0?1.1:.91))}}
 (async()=>{
- try{const[b,s,l]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson')]);
-  prep(b,s,l);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v5): ${ids.length} constellations loaded`}
+ try{const[b,s,l,fab]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson').catch(()=>({features:[]})),loadFab().catch(()=>null)]);
+  prep(b,s,l,fab);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v6): ${ids.length} constellations, ${segs.length?'Sky & Telescope':'fallback'} lines`}
  catch(e){$('#status').textContent='Error: '+e.message+' (see README)'}
 })();

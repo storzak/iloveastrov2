@@ -1,49 +1,56 @@
 *{box-sizing:border-box;border-radius:0}
-body{margin:0;font:13px/1.4 Arial,Helvetica,sans-serif;color:#000;background:#fff}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:8px 16px;border-bottom:1px solid #000}
-h1{font-size:20px;margin:0 0 6px;line-height:1.1}
-h2{font-size:13px;margin:0 0 6px}
-main{padding:10px 16px}
-p{margin:0 0 6px}
+html{font-size:clamp(11px,2.05vh,16px)}
+body{margin:0;height:100vh;display:flex;flex-direction:column;font:1rem/1.4 Arial,Helvetica,sans-serif;color:#000;background:#fff}
+header{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:12px 20px;border-bottom:1px solid #000;font-size:15px}
+h1{font-size:24px;margin:0 0 8px;line-height:1.2}
+h2{font-size:1rem;margin:0 0 .5rem}
+p{margin:0 0 .5rem}
 a{color:#000}
-button,input,select{font:inherit;color:#000;background:#fff;border:1px solid #000;padding:4px 10px}
+button,input,select{font:inherit;color:#000;background:#fff;border:1px solid #000;padding:.35rem .8rem}
 button{cursor:pointer}
 button:hover{background:#f0f0f0}
-.nav{display:flex;gap:6px}
+.nav{display:flex;gap:8px}
+.nav button{font-size:15px;padding:7px 14px}
 button.on,button.on:hover{background:#e2e2e2}
 input[type=range]{width:100%;padding:0;border:0;margin:0;accent-color:#000}
-input[type=checkbox]{vertical-align:middle;margin:0 4px 0 0;accent-color:#000}
-input[type=number]{width:4em;padding:3px 6px}
-.right{display:flex;align-items:center;gap:12px}
-#status{font-size:12px}
+input[type=checkbox]{vertical-align:middle;margin:0 .35rem 0 0;accent-color:#000}
+input[type=number]{width:4em;padding:.2rem .4rem}
+.right{display:flex;align-items:center;gap:14px}
+#status{font-size:13px}
 #menuwrap{position:relative}
-#burger{width:34px;height:30px;padding:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px}
-#burger i{display:block;width:16px;height:2px;background:#000}
-#menu{position:absolute;top:calc(100% + 6px);right:0;z-index:10;width:320px;max-width:90vw;background:#fff;border:1px solid #000;padding:10px}
-#slots>div{padding:6px 0;border-top:1px solid #000;font-size:12px}
-#slots .row{margin-top:4px}
-#slots button{padding:2px 8px}
-.layout{display:flex;gap:12px;align-items:stretch}
-.panel{flex:0 0 320px;width:320px;border:1px solid #000}
-.sec{padding:10px 12px}
+#burger{width:40px;height:36px;padding:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px}
+#burger i{display:block;width:18px;height:2px;background:#000}
+#menu{position:absolute;top:calc(100% + 8px);right:0;z-index:10;width:340px;max-width:90vw;background:#fff;border:1px solid #000;padding:14px;font-size:14px}
+#menu h2{font-size:14px}
+#slots>div{padding:8px 0;border-top:1px solid #000;font-size:13px}
+#slots .row{margin-top:6px}
+#slots button{padding:4px 10px;font-size:13px}
+main{flex:1;min-height:0;display:flex;padding:10px 8px 0}
+main>div:not([hidden]){flex:1;min-width:0;min-height:0;display:flex}
+.layout{flex:1;min-width:0;min-height:0;display:flex;gap:8px;justify-content:center;align-items:stretch}
+.view{flex:none;height:100%;aspect-ratio:1;position:relative;container-type:size;border:1px solid #000}
+#sky{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(min(100cqw,100cqh) - 12px);height:auto;aspect-ratio:1;border:1px solid #000;border-radius:50%;touch-action:none;cursor:grab}
+.panel{flex:1 1 26rem;max-width:60rem;min-width:17rem;border:1px solid #000;display:flex;flex-direction:column;overflow:auto}
+.sec{flex:1 0 auto;padding:.6rem .9rem;display:flex;flex-direction:column;justify-content:center}
 .sec+.sec{border-top:1px solid #000}
-.view{flex:1 1 0;min-width:0;position:relative;container-type:size;border:1px solid #000}
-.chartcol{flex:1 1 0;min-width:0;border:1px solid #000;padding:10px 12px}
-#sky{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(calc(100cqw - 16px),calc(100cqh - 16px));height:auto;aspect-ratio:1;border:1px solid #000;border-radius:50%;touch-action:none;cursor:grab}
-#chartimgs img{display:block;width:100%;height:auto;max-height:calc(100vh - 190px);object-fit:contain;border:1px solid #000;margin-bottom:8px}
-.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.r .panel{flex:0 0 26rem}
+.r .sec{flex:0 0 auto;justify-content:flex-start}
+.chartcol{flex:1;min-width:0;min-height:0;border:1px solid #000;padding:.6rem .9rem;display:flex;flex-direction:column}
+#chartimgs{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}
+#chartimgs img{flex:1 1 0;min-height:0;width:100%;object-fit:contain;border:1px solid #000}
+.row{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
 .between{justify-content:space-between}
 #ans{flex:1;min-width:0}
-#msg{min-height:1.2em;font-weight:700;margin:6px 0}
-#score,.hint{font-size:12px;margin:6px 0 0}
-.ctl{display:flex;gap:18px;align-items:center;margin-bottom:6px}
-.dpad{display:grid;grid-template-columns:repeat(3,32px);grid-template-rows:repeat(3,32px);gap:3px}
-.dpad button{padding:0;font-size:17px;line-height:1}
-.rot{display:flex;flex-direction:column;gap:6px}
-.rot button{width:46px;height:32px;padding:0;display:flex;align-items:center;justify-content:center}
-.rot svg{width:18px;height:18px}
-#rinfo{font-size:13px}
-#rres{margin-top:6px}
-label{display:block;margin-bottom:6px}
+#msg{min-height:1.3em;font-weight:700;margin:.4rem 0}
+#score,.hint{font-size:.85rem;margin:.4rem 0 0}
+.ctl{display:flex;gap:1.2rem;align-items:center;margin-bottom:.5rem}
+.dpad{display:grid;grid-template-columns:repeat(3,2.6rem);grid-template-rows:repeat(3,2.6rem);gap:.25rem}
+.dpad button{padding:0;font-size:1.25rem;line-height:1}
+.rot{display:flex;flex-direction:column;gap:.4rem}
+.rot button{width:3.4rem;height:2.6rem;padding:0;display:flex;align-items:center;justify-content:center}
+.rot svg{width:1.4rem;height:1.4rem}
+#rinfo{font-size:.95rem}
+#rres{margin-top:.5rem}
+label{display:block;margin-bottom:.4rem}
 .row label{margin:0}
-@media(max-width:900px){.layout{flex-direction:column}.panel{flex:none;width:100%}.view{flex:none;width:100%;aspect-ratio:1}.chartcol{flex:none;width:100%;order:-1}header{flex-wrap:wrap}}
+@media(max-width:900px){body{height:auto}main{display:block;padding:10px}main>div:not([hidden]){display:block}.layout{flex-direction:column}.view{width:100%;height:auto}.panel,.r .panel{max-width:none;width:100%}.chartcol{order:-1}#chartimgs img{height:auto;flex:none}header{flex-wrap:wrap}html{font-size:15px}}
