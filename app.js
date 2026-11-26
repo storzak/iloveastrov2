@@ -67,6 +67,7 @@ function sky(cx,W,H,cam,fov,o){
 }
 
 /* ---------- skyguessr ---------- */
+const S={cross:1,rndFov:false}; /* settings: size of the circled X, random field of view each round */
 const G={fov:145,cam:null,start:null,tp:null,target:null,solved:false,msg:'',ok:0,miss:0};
 function turn(ax,a){const c=Math.cos(a),s=Math.sin(a),m=G.cam;
  if(ax==='x')[m.f,m.r]=[mix(m.f,m.r,c,s),mix(m.r,m.f,c,-s)];
@@ -76,11 +77,12 @@ function draw(){
  if(!G.cam)return;saveSoon();
  sky($('#sky').getContext('2d'),900,900,G.cam,G.fov,{lines:$('#tl').checked,bounds:$('#tb').checked,over:(cx,P)=>{
   const p=G.tp&&P(vec(G.tp[0],G.tp[1]));
-  if(p){cx.strokeStyle='#000';cx.lineWidth=2.5;cx.beginPath();cx.arc(p[0],p[1],24,0,7);cx.moveTo(p[0]-9,p[1]-9);cx.lineTo(p[0]+9,p[1]+9);cx.moveTo(p[0]+9,p[1]-9);cx.lineTo(p[0]-9,p[1]+9);cx.stroke()}}})}
+  if(p){const z=S.cross,r=24*z,q=9*z;cx.strokeStyle='#000';cx.lineWidth=2.5;cx.beginPath();cx.arc(p[0],p[1],r,0,7);cx.moveTo(p[0]-q,p[1]-q);cx.lineTo(p[0]+q,p[1]+q);cx.moveTo(p[0]+q,p[1]-q);cx.lineTo(p[0]-q,p[1]+q);cx.stroke()}}})}
 function ui(){saveSoon();$('#fovv').textContent=Math.round(G.fov)+' degrees';$('#fov').value=G.fov;$('#msg').textContent=G.msg;
  const n=G.ok+G.miss;$('#score').textContent=`Correct: ${G.ok} | Not correct: ${G.miss} | Accuracy: ${n?Math.round(100*G.ok/n)+'%':'n/a'}`}
 function setFov(v){G.fov=Math.max(5,Math.min(180,v));ui();draw()}
 function newRound(){
+ if(S.rndFov)G.fov=Math.round(20+Math.random()*125);
  const c=C[pick(ids)],[ra,dec]=randPoint(c),t=vec(ra,dec),p=nrm(cross(t,[Math.random()-.5,Math.random()-.5,Math.random()-.5])),a=Math.random()*Math.min(35,G.fov*.3)*D;
  G.cam=look(mix(t,p,Math.cos(a),Math.sin(a)));turn('z',Math.random()*2*Math.PI);
  Object.assign(G,{target:c.id,tp:[ra,dec],solved:false,msg:''});G.start=clone(G.cam);$('#ans').value='';setFov(G.fov)}
@@ -96,12 +98,12 @@ function check(quiet){
 function nextRound(){G.solved?G.ok++:G.miss++;newRound()}
 
 /* ---------- skyrace ---------- */
-const R={start:'',end:'',path:[],done:false,ok:0,miss:0,counted:false};
+const R={start:'',end:'',path:[],done:false,total:0,last:0,races:0,counted:false};
 function bfs(a){const d={[a]:0},p={},q=[a];for(let i=0;i<q.length;i++)for(const n of adj[q[i]])if(!(n in d)){d[n]=d[q[i]]+1;p[n]=q[i];q.push(n)}return{d,p}}
 function newRace(){
  let m=Math.max(2,+$('#minsteps').value||2),a,c=[];
  for(let t=0;t<300&&!c.length;t++){a=pick(ids);const{d}=bfs(a);c=ids.filter(i=>d[i]>=m);if(t==299)m=2}
- if(R.start&&!R.done&&!R.counted)R.miss++; /* skipped a race without finishing it */
+ if(R.start&&!R.done&&!R.counted&&R.path.length>1){R.last=0;R.races++} /* gave up a race after moving: 0 points */
  Object.assign(R,{start:a,end:pick(c),path:[a],done:false,counted:false});drawRace()}
 const WIKI='https://commons.wikimedia.org/wiki/';
 function chart(id){ /* official IAU / Sky & Telescope charts from Wikimedia Commons ("<Name> IAU.svg") */
@@ -112,54 +114,64 @@ function chart(id){ /* official IAU / Sky & Telescope charts from Wikimedia Comm
   im.alt='IAU chart: '+nm;im.src=src(0);
   im.onerror=()=>{if(++h<files.length)im.src=src(h);else{const p=document.createElement('p');p.innerHTML='The chart could not be loaded. <a href="'+WIKI+'File:'+encodeURIComponent(files[0])+'" target="_blank" rel="noopener">Open it on Wikimedia Commons</a>.';im.replaceWith(p)}};
   box.append(im)}}
+const ARROW=' \u2192 ',mv=n=>n+(n===1?' move':' moves');
+/* score: shortest route = 100, minus 20 for every extra move (never below 0) */
+const raceScore=()=>Math.max(0,100-(R.path.length-1-bfs(R.start).d[R.end])*20);
 function drawRace(){saveSoon();
  const cur=R.path[R.path.length-1],nm=i=>C[i].name,b=$('#rbtns');b.innerHTML='';
- $('#rinfo').innerHTML=`Start: <b>${nm(R.start)}</b><br>Destination: <b>${nm(R.end)}</b><br>Current: <b>${nm(cur)}</b><br>Moves so far: ${R.path.length-1}<br>Path so far: ${R.path.map(nm).join(' &gt; ')}`;
+ $('#rinfo').innerHTML=`<b>${nm(R.start)}${ARROW}${nm(R.end)}</b><br>Current: <b>${nm(cur)}</b><br>Moves: ${R.path.length-1}`;
+ $('#rscore').textContent=`Last: ${R.last} | Total: ${R.total} | Races: ${R.races}`;
  chart(cur);
- const rn=R.ok+R.miss;$('#rscore').textContent=`Shortest route found: ${R.ok} | Not shortest: ${R.miss} | Accuracy: ${rn?Math.round(100*R.ok/rn)+'%':'n/a'}`;
- if(R.done){const{p}=bfs(R.start),s=[R.end];while(s[0]!==R.start)s.unshift(p[s[0]]);const n=R.path.length;
-  $('#nexth').textContent='Destination reached';
-  $('#rres').innerHTML=`<p>You went through ${n} constellations (${n-1} moves), start and destination included.</p><p>The shortest possible is ${s.length} constellations (${s.length-1} moves).</p><p>Suggested shortest path: ${s.map(nm).join(' &gt; ')}</p>${n===s.length?'<p><b>You found a shortest path.</b></p>':''}`;return}
+ if(R.done){const{p}=bfs(R.start),s=[R.end];while(s[0]!==R.start)s.unshift(p[s[0]]);
+  $('#nexth').textContent='Result';
+  $('#rres').innerHTML=`<p>Yours: ${R.path.map(nm).join(ARROW)} (${mv(R.path.length-1)})</p><p>Shortest: ${s.map(nm).join(ARROW)} (${mv(s.length-1)})</p><p><b>Score: ${raceScore()}</b></p>`;return}
  $('#nexth').textContent='Go to';$('#rres').textContent='';
- [...adj[cur]].sort((x,y)=>nm(x)<nm(y)?-1:1).forEach(i=>{const e=document.createElement('button');e.textContent=nm(i);e.onclick=()=>{R.path.push(i);if(i===R.end){R.done=true;if(!R.counted){R.counted=true;bfs(R.start).d[R.end]+1===R.path.length?R.ok++:R.miss++}}drawRace()};b.append(e)})}
+ [...adj[cur]].sort((x,y)=>nm(x)<nm(y)?-1:1).forEach(i=>{const e=document.createElement('button');e.textContent=nm(i);if(i===R.end)e.className='dest';
+  e.onclick=()=>{R.path.push(i);if(i===R.end){R.done=true;if(!R.counted){R.counted=true;R.last=raceScore();R.total+=R.last;R.races++}}drawRace()};b.append(e)})}
 
 /* ---------- saves (3 slots, localStorage) + page wiring ---------- */
 let game='guess';
 function show(g){game=g;$('#guess').hidden=g!=='guess';$('#race').hidden=g!=='race';$('#tg').classList.toggle('on',g==='guess');$('#tr').classList.toggle('on',g==='race');if(g==='guess'){ui();draw()}else drawRace()}
 /* A save slot holds the whole site: both games, open tab, overlays, step size, race setting and typed answer.
    Select a slot once: it is then autosaved and re-opened automatically on every visit. */
-let active=+localStorage.getItem('ioaa-active')||0,ready=false,timer=0,impSlot=1;
+let active=+localStorage.getItem('ioaa-active')||0,ready=false,timer=0;
 const get=i=>{try{return JSON.parse(localStorage.getItem('ioaa-slot-'+i))}catch(e){return null}};
 const put=(i,o,quiet)=>{try{localStorage.setItem('ioaa-slot-'+i,JSON.stringify(o));return true}catch(e){if(!quiet)alert('Could not save in this browser.');return false}};
-function snapshot(){return clone({game,G,R,ui:{tl:$('#tl').checked,tb:$('#tb').checked,step:$('#step').value,min:$('#minsteps').value,ans:$('#ans').value}})}
-function restore(s){Object.assign(G,s.G);Object.assign(R,s.R);const u=s.ui||{};
+function snapshot(){return clone({game,G,R,S,ui:{tl:$('#tl').checked,tb:$('#tb').checked,step:$('#step').value,min:$('#minsteps').value,ans:$('#ans').value}})}
+function restore(s){Object.assign(G,s.G);Object.assign(R,s.R);Object.assign(S,s.S||{});const u=s.ui||{};
+ $('#xs').value=S.cross;$('#xsv').textContent=S.cross.toFixed(1)+'x';$('#rf').checked=S.rndFov;
  $('#tl').checked=!!u.tl;$('#tb').checked=!!u.tb;if(u.step)$('#step').value=u.step;if(u.min)$('#minsteps').value=u.min;$('#ans').value=u.ans||'';
  game=s.game;ui();draw();drawRace();show(game)}
 function saveNow(){clearTimeout(timer);if(!ready||!active)return;const s=get(active);put(active,{started:(s&&s.started)||Date.now(),all:snapshot()},true)}
 function saveSoon(){if(!ready||!active)return;clearTimeout(timer);timer=setTimeout(saveNow,500)}
-const asave=()=>{$('#asave').textContent=active?`Autosave: slot ${active}`:'Autosave off: pick a slot in the menu'};
+const asave=()=>{$('#islot').value=active||1;$('#asave').textContent=active?`Autosave: slot ${active}`:'Autosave off: pick a slot in the menu'};
 function select(i){saveNow();const s=get(i);active=i;localStorage.setItem('ioaa-active',i);
- if(s&&s.all)restore(s.all);else put(i,{started:Date.now(),all:snapshot()});slots();asave();$('#menu').hidden=true}
+ if(s&&s.all)restore(s.all);else put(i,{started:Date.now(),all:snapshot()});slots();asave();$('#menu').hidden=$('#setmenu').hidden=true}
 function exportSlot(i){saveNow();const s=get(i);if(!s||!s.all)return alert('This slot is empty.');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'iloveastro',version:1,started:s.started,all:s.all})],{type:'application/json'}));
  a.download=`iloveastro-slot${i}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 async function importFile(f){
- try{const j=JSON.parse(await f.text()),all=j.all||j;
+ try{const slot=+$('#islot').value,j=JSON.parse(await f.text()),all=j.all||j;
   if(!(all&&(all.game==='guess'||all.game==='race')&&all.G&&all.R&&C[all.G.target]&&C[all.R.start]))throw 0;
-  const old=get(impSlot);if(old&&old.all&&!confirm(`Replace the save in slot ${impSlot}?`))return;
-  put(impSlot,{started:j.started||Date.now(),all});select(impSlot)}
+  const old=get(slot);if(old&&old.all&&!confirm(`Replace the save in slot ${slot}?`))return;
+  put(slot,{started:j.started||Date.now(),all});select(slot)}
  catch(e){alert('That file is not a valid iloveastro save.')}}
 function slots(){const el=$('#slots');el.innerHTML='';
  for(let i=1;i<=3;i++){const s=get(i),has=s&&s.all,d=document.createElement('div'),r=document.createElement('div');r.className='row';
   d.append(`Slot ${i}${active===i?' (active)':''}: ${has?'started '+(s.started?new Date(s.started).toLocaleString():'(time unknown)'):'empty'}`,r);
   const add=(t,f)=>{const b=document.createElement('button');b.textContent=t;b.onclick=f;r.append(b)};
-  add('Select',()=>select(i));add('Export',()=>exportSlot(i));add('Import',()=>{impSlot=i;$('#imp').click()});
+  add('Select',()=>select(i));
   add('Clear',()=>{if(!has||!confirm(`Delete slot ${i}?`))return;localStorage.removeItem('ioaa-slot-'+i);if(active===i){active=0;localStorage.removeItem('ioaa-active')}slots();asave()});
   el.append(d)}}
 function wire(){
  $('#tg').onclick=()=>show('guess');$('#tr').onclick=()=>show('race');
- $('#burger').onclick=e=>{e.stopPropagation();const m=$('#menu');m.hidden=!m.hidden;$('#burger').setAttribute('aria-expanded',!m.hidden)};
- document.addEventListener('click',e=>{if(!e.target.closest('#menuwrap'))$('#menu').hidden=true});
+ const dd=(btn,menu,other)=>{$(btn).onclick=e=>{e.stopPropagation();$(other).hidden=true;const m=$(menu);m.hidden=!m.hidden;$(btn).setAttribute('aria-expanded',!m.hidden)}};
+ dd('#burger','#menu','#setmenu');dd('#setbtn','#setmenu','#menu');
+ document.addEventListener('click',e=>{if(!e.target.closest('#menuwrap'))$('#menu').hidden=true;if(!e.target.closest('#setwrap'))$('#setmenu').hidden=true});
+ $('#xs').oninput=e=>{S.cross=+e.target.value;$('#xsv').textContent=S.cross.toFixed(1)+'x';draw()};
+ $('#rf').onchange=e=>{S.rndFov=e.target.checked;saveSoon()};
+ $('#exp').onclick=()=>exportSlot(+$('#islot').value);
+ $('#impb').onclick=()=>$('#imp').click();
  $('#fov').oninput=e=>setFov(+e.target.value);$('#fm').onclick=()=>setFov(G.fov*.85);$('#fp').onclick=()=>setFov(G.fov/.85);
  $('#tl').onchange=$('#tb').onchange=draw;
  document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{turn(b.dataset.a,+b.dataset.s*(+$('#step').value)*D);draw()});
@@ -176,6 +188,6 @@ function wire(){
  cv.onwheel=e=>{e.preventDefault();setFov(G.fov*(e.deltaY>0?1.1:.91))}}
 (async()=>{
  try{const[b,s,l,fab]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson').catch(()=>({features:[]})),loadFab().catch(()=>null)]);
-  prep(b,s,l,fab);wire();newRound();newRace();ready=true;{const sv=active&&get(active);if(sv&&sv.all)restore(sv.all);else active=0}slots();asave();$('#status').textContent=`Ready (v8): ${ids.length} constellations, ${segs.length?'Sky & Telescope':'fallback'} lines`}
+  prep(b,s,l,fab);wire();newRound();newRace();ready=true;{const sv=active&&get(active);if(sv&&sv.all)restore(sv.all);else active=0}slots();asave();$('#status').textContent=`Ready (v9): ${ids.length} constellations, ${segs.length?'Sky & Telescope':'fallback'} lines`}
  catch(e){$('#status').textContent='Error: '+e.message+' (see README)'}
 })();

@@ -1,5 +1,5 @@
 *{box-sizing:border-box;border-radius:0}
-html{font-size:clamp(11px,2.05vh,16px)}
+html{font-size:clamp(11px,1.92vh,16px)}
 body{margin:0;height:100vh;display:flex;flex-direction:column;font:1rem/1.4 Arial,Helvetica,sans-serif;color:#000;background:#fff}
 header{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:12px 20px;border-bottom:1px solid #000;font-size:15px}
 h1{font-size:24px;margin:0 0 8px;line-height:1.2}
@@ -17,21 +17,28 @@ input[type=checkbox]{vertical-align:middle;margin:0 .35rem 0 0;accent-color:#000
 input[type=number]{width:4em;padding:.2rem .4rem}
 .right{display:flex;align-items:center;gap:14px}
 #status,#asave{font-size:13px}
-#menuwrap{position:relative}
+.dd{position:relative}
 #burger{width:40px;height:36px;padding:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px}
 #burger i{display:block;width:18px;height:2px;background:#000}
-#menu{position:absolute;top:calc(100% + 8px);right:0;z-index:10;width:340px;max-width:90vw;background:#fff;border:1px solid #000;padding:14px;font-size:14px}
-#menu h2{font-size:14px}
+.menu{position:absolute;top:calc(100% + 8px);right:0;z-index:10;width:340px;max-width:90vw;background:#fff;border:1px solid #000;padding:14px;font-size:14px}
+.menu h2{font-size:14px;margin-top:2px}
+.menu h2+label,.menu .row+h2{margin-top:12px}
+.menu label{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:13px}
+.menu input[type=range]{flex:1;width:auto}
+.menu .row{font-size:13px}
+.menu select{padding:3px 6px}
+#rbtns button.dest{background:#ffeb3b}
+#rbtns button.dest:hover{background:#fdd835}
 #slots>div{padding:8px 0;border-top:1px solid #000;font-size:13px}
 #slots .row{margin-top:6px}
 #slots button{padding:4px 10px;font-size:13px}
-main{flex:1;min-height:0;display:flex;padding:10px 8px 0}
+main{flex:1;min-height:0;display:flex;padding:10px 8px 14px}
 main>div:not([hidden]){flex:1;min-width:0;min-height:0;display:flex}
 .layout{flex:1;min-width:0;min-height:0;display:flex;gap:8px;justify-content:center;align-items:stretch}
 .view{flex:1 1 0;min-width:0;height:100%;position:relative;container-type:size;border:1px solid #000}
 #sky{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(min(100cqw,100cqh) - 12px);height:auto;aspect-ratio:1;border:1px solid #000;border-radius:50%;touch-action:none;cursor:grab}
 .panel{flex:0 0 25vw;min-width:17rem;border:1px solid #000;display:flex;flex-direction:column;overflow:auto}
-.sec{flex:1 0 auto;padding:.6rem .9rem;display:flex;flex-direction:column;justify-content:center}
+.sec{flex:1 0 auto;padding:.5rem .9rem;display:flex;flex-direction:column;justify-content:center}
 .sec+.sec{border-top:1px solid #000}
 .r .panel{flex:0 0 20.8rem}
 .r .sec{flex:0 0 auto;justify-content:flex-start}

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iloveastro</title><link rel="stylesheet" href="style.css?v=8"></head>
+<title>iloveastro</title><link rel="stylesheet" href="style.css?v=9"></head>
 <body>
 <header>
  <div class="brand">
@@ -9,9 +9,20 @@
  </div>
  <div class="right">
   <span id="status">Loading constellation data...</span><span id="asave"></span>
-  <div id="menuwrap">
+  <div class="dd" id="setwrap">
+   <button id="setbtn" aria-expanded="false">Settings</button>
+   <div class="menu" id="setmenu" hidden>
+    <h2>Skyguessr</h2>
+    <label>Cross size <input type="range" id="xs" min="0.3" max="3" step="0.1" value="1"><span id="xsv">1.0x</span></label>
+    <label><input type="checkbox" id="rf"> Random FOV each round</label>
+    <h2>Save file</h2>
+    <div class="row">Slot <select id="islot"><option>1<option>2<option>3</select><button id="exp">Export</button><button id="impb">Import</button></div>
+    <input type="file" id="imp" accept=".json,application/json" hidden>
+   </div>
+  </div>
+  <div class="dd" id="menuwrap">
    <button id="burger" aria-label="Saves menu" aria-expanded="false"><i></i><i></i><i></i></button>
-   <div id="menu" hidden><h2>Save slots</h2><p class="hint">Select a slot once and the site autosaves to it and reopens it on every visit.</p><div id="slots"></div><input type="file" id="imp" accept=".json,application/json" hidden></div>
+   <div class="menu" id="menu" hidden><h2>Save slots</h2><div id="slots"></div></div>
   </div>
  </div>
 </header>
@@ -53,5 +64,5 @@
   <p class="hint">Charts: IAU and Sky &amp; Telescope (Roger Sinnott &amp; Rick Fienberg), via <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY 4.0.</p></div>
 </div></div>
 </main>
-<script src="app.js?v=8"></script>
+<script src="app.js?v=9"></script>
 </body></html>
