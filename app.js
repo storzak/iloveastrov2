@@ -42,7 +42,7 @@ function prep(b,s,l,fab){
  if(segs.some(x=>!hip[x[0]]||!hip[x[1]])) /* a few pattern stars are fainter than mag 6: fetch the mag-8 catalogue just for them */
   fetchFirst(['data/stars.8.min.geojson',CDN+'stars.8.min.geojson'],true).then(j=>{for(const f of j.features){const h=hipOf(f);if(need.has(h)&&!hip[h])hip[h]=f.geometry.coordinates}buildLines();draw()}).catch(()=>{})
 }
-const keys=c=>c.k||(c.k=[key(c.name),key(c.id),...(c.id==='Ser'?['serpenscaput','serpenscauda']:[])]);
+const keys=c=>c.k||(c.k=[key(c.name),...(c.id==='Ser'?['serpenscaput','serpenscauda']:[])]); /* full names only */
 function inside(poly,x,y){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>y)!=(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 function edist(poly,x,y){const k=Math.cos(y*D);let m=1e9;for(let i=0;i<poly.length-1;i++){const a=poly[i],b=poly[i+1],ax=(a[0]-x)*k,ay=a[1]-y,dx=(b[0]-x)*k-ax,dy=b[1]-y-ay,t=Math.max(0,Math.min(1,-(ax*dx+ay*dy)/(dx*dx+dy*dy||1)));m=Math.min(m,Math.hypot(ax+t*dx,ay+t*dy))}return m}
 function randPoint(c){ /* random point well inside the constellation */
@@ -85,9 +85,13 @@ function newRound(){
  G.cam=look(mix(t,p,Math.cos(a),Math.sin(a)));turn('z',Math.random()*2*Math.PI);
  Object.assign(G,{target:c.id,tp:[ra,dec],solved:false,msg:''});G.start=clone(G.cam);$('#ans').value='';setFov(145)}
 function check(quiet){
- const t=key($('#ans').value),c=C[G.target];if(!t)return;
- if(keys(c).includes(t)){G.solved=true;G.msg='correct'}
- else if(!quiet){G.msg=[...adj[c.id]].some(i=>keys(C[i]).includes(t))?'close':'incorrect'}
+ /* quiet = typing: only an exact, complete name counts, and only if no longer name starts with it (Leo vs Leo Minor);
+    Enter/Check judges what was typed: correct, close (full name of a neighbour) or incorrect */
+ const t=key($('#ans').value),c=C[G.target],hit=keys(c).includes(t);
+ if(hit&&(!quiet||!ids.some(i=>keys(C[i]).some(k=>k!==t&&k.startsWith(t)))))G.solved=true;
+ if(G.solved)G.msg='correct';
+ else if(quiet||!t)G.msg='';
+ else G.msg=[...adj[c.id]].some(i=>keys(C[i]).includes(t))?'close':'incorrect';
  ui()}
 function nextRound(){G.solved?G.ok++:G.miss++;newRound()}
 
@@ -120,13 +124,18 @@ function drawRace(){
 /* ---------- saves (3 slots, localStorage) + page wiring ---------- */
 let game='guess';
 function show(g){game=g;$('#guess').hidden=g!=='guess';$('#race').hidden=g!=='race';$('#tg').classList.toggle('on',g==='guess');$('#tr').classList.toggle('on',g==='race');if(g==='guess'){ui();draw()}else drawRace()}
+/* a save slot holds the whole site: both games, which tab is open, overlays, step size, race setting and typed answer */
+function snapshot(){return clone({game,G,R,ui:{tl:$('#tl').checked,tb:$('#tb').checked,step:$('#step').value,min:$('#minsteps').value,ans:$('#ans').value}})}
+function restore(s){Object.assign(G,s.G);Object.assign(R,s.R);const u=s.ui||{};
+ $('#tl').checked=!!u.tl;$('#tb').checked=!!u.tb;if(u.step)$('#step').value=u.step;if(u.min)$('#minsteps').value=u.min;$('#ans').value=u.ans||'';
+ game=s.game;ui();draw();drawRace();show(game)}
 function slots(){const el=$('#slots');el.innerHTML='';
  for(let i=1;i<=3;i++){let s=null;try{s=JSON.parse(localStorage.getItem('ioaa-slot-'+i))}catch(e){}
   const d=document.createElement('div'),r=document.createElement('div');r.className='row';d.append(`Slot ${i}: ${s?s.label:'empty'}`,r);
   const add=(t,f)=>{const b=document.createElement('button');b.textContent=t;b.onclick=f;r.append(b)};
-  add('Save',()=>{if(!ids.length)return;const now=new Date().toLocaleString(),label=game==='guess'?`Skyguessr, ${G.ok+G.miss} rounds played, ${now}`:`Skyrace ${C[R.start].name} to ${C[R.end].name}, ${R.path.length-1} moves, ${now}`;
-   try{localStorage.setItem('ioaa-slot-'+i,JSON.stringify({game,label,state:clone(game==='guess'?G:R)}))}catch(e){alert('Could not save in this browser.')}slots()});
-  add('Load',()=>{if(!s)return;Object.assign(s.game==='guess'?G:R,s.state);show(s.game);$('#menu').hidden=true});
+  add('Save',()=>{if(!ids.length)return;const n=G.ok+G.miss,label=`${new Date().toLocaleString()}: ${game==='guess'?'Skyguessr':'Skyrace'} open. Skyguessr: ${n} rounds, ${n?Math.round(100*G.ok/n)+'%':'n/a'}. Skyrace: ${C[R.start].name} to ${C[R.end].name}, ${R.path.length-1} moves.`;
+   try{localStorage.setItem('ioaa-slot-'+i,JSON.stringify({label,all:snapshot()}))}catch(e){alert('Could not save in this browser.')}slots()});
+  add('Load',()=>{if(!s)return;if(s.all)restore(s.all);else{Object.assign(s.game==='guess'?G:R,s.state);ui();draw();show(s.game)}$('#menu').hidden=true});
   add('Clear',()=>{localStorage.removeItem('ioaa-slot-'+i);slots()});
   el.append(d)}}
 function wire(){
@@ -146,6 +155,6 @@ function wire(){
  cv.onwheel=e=>{e.preventDefault();setFov(G.fov*(e.deltaY>0?1.1:.91))}}
 (async()=>{
  try{const[b,s,l,fab]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson').catch(()=>({features:[]})),loadFab().catch(()=>null)]);
-  prep(b,s,l,fab);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v6): ${ids.length} constellations, ${segs.length?'Sky & Telescope':'fallback'} lines`}
+  prep(b,s,l,fab);wire();slots();newRound();newRace();$('#status').textContent=`Ready (v7): ${ids.length} constellations, ${segs.length?'Sky & Telescope':'fallback'} lines`}
  catch(e){$('#status').textContent='Error: '+e.message+' (see README)'}
 })();

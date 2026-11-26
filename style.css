@@ -28,9 +28,9 @@ input[type=number]{width:4em;padding:.2rem .4rem}
 main{flex:1;min-height:0;display:flex;padding:10px 8px 0}
 main>div:not([hidden]){flex:1;min-width:0;min-height:0;display:flex}
 .layout{flex:1;min-width:0;min-height:0;display:flex;gap:8px;justify-content:center;align-items:stretch}
-.view{flex:none;height:100%;aspect-ratio:1;position:relative;container-type:size;border:1px solid #000}
+.view{flex:1 1 0;min-width:0;height:100%;position:relative;container-type:size;border:1px solid #000}
 #sky{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(min(100cqw,100cqh) - 12px);height:auto;aspect-ratio:1;border:1px solid #000;border-radius:50%;touch-action:none;cursor:grab}
-.panel{flex:1 1 26rem;max-width:60rem;min-width:17rem;border:1px solid #000;display:flex;flex-direction:column;overflow:auto}
+.panel{flex:0 0 33.333vw;min-width:17rem;border:1px solid #000;display:flex;flex-direction:column;overflow:auto}
 .sec{flex:1 0 auto;padding:.6rem .9rem;display:flex;flex-direction:column;justify-content:center}
 .sec+.sec{border-top:1px solid #000}
 .r .panel{flex:0 0 26rem}
