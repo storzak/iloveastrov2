@@ -7,7 +7,7 @@ Static site (no build step): `index.html`, `style.css`, `app.js`.
 3. Open `https://<username>.github.io/<repo>/`.
 
 If you update a deployed copy and still see an old design, hard-refresh (Ctrl+Shift+R).
-The header shows "Ready (v7)" when the latest script is loaded.
+The header shows "Ready (v8)" when the latest script is loaded.
 
 ## Data
 Constellation boundaries (IAU, J2000), stars (to mag 6) and constellation lines come from
@@ -30,7 +30,7 @@ using file names of the form `<Constellation name> IAU.svg` (e.g. `Sagittarius I
 The file-name logic is the `chart()` function in `app.js`.
 
 ## Notes
-- Saves (3 slots) use the browser's localStorage and store the whole site (both games, open tab, overlays, settings), so they stay on the device and browser you used.
+- Saves: 3 slots in the browser's localStorage. Select a slot once; the whole site (both games, open tab, overlays, settings, field of view) is then autosaved to it and reopened on every visit. Slots can be exported to and imported from a `.json` file (also a way to move saves between browsers).
 - Answers must be the full constellation name (no 3-letter abbreviations).
 - Neighbours are computed from shared boundary vertices; Serpens is treated as one constellation.
 - Skyrace "at least N moves away" means the shortest route has at least N moves.

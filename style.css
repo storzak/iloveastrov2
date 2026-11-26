@@ -16,7 +16,7 @@ input[type=range]{width:100%;padding:0;border:0;margin:0;accent-color:#000}
 input[type=checkbox]{vertical-align:middle;margin:0 .35rem 0 0;accent-color:#000}
 input[type=number]{width:4em;padding:.2rem .4rem}
 .right{display:flex;align-items:center;gap:14px}
-#status{font-size:13px}
+#status,#asave{font-size:13px}
 #menuwrap{position:relative}
 #burger{width:40px;height:36px;padding:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px}
 #burger i{display:block;width:18px;height:2px;background:#000}
@@ -30,10 +30,10 @@ main>div:not([hidden]){flex:1;min-width:0;min-height:0;display:flex}
 .layout{flex:1;min-width:0;min-height:0;display:flex;gap:8px;justify-content:center;align-items:stretch}
 .view{flex:1 1 0;min-width:0;height:100%;position:relative;container-type:size;border:1px solid #000}
 #sky{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(min(100cqw,100cqh) - 12px);height:auto;aspect-ratio:1;border:1px solid #000;border-radius:50%;touch-action:none;cursor:grab}
-.panel{flex:0 0 33.333vw;min-width:17rem;border:1px solid #000;display:flex;flex-direction:column;overflow:auto}
+.panel{flex:0 0 25vw;min-width:17rem;border:1px solid #000;display:flex;flex-direction:column;overflow:auto}
 .sec{flex:1 0 auto;padding:.6rem .9rem;display:flex;flex-direction:column;justify-content:center}
 .sec+.sec{border-top:1px solid #000}
-.r .panel{flex:0 0 26rem}
+.r .panel{flex:0 0 20.8rem}
 .r .sec{flex:0 0 auto;justify-content:flex-start}
 .chartcol{flex:1;min-width:0;min-height:0;border:1px solid #000;padding:.6rem .9rem;display:flex;flex-direction:column}
 #chartimgs{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}

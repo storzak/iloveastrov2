@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iloveastro</title><link rel="stylesheet" href="style.css?v=7"></head>
+<title>iloveastro</title><link rel="stylesheet" href="style.css?v=8"></head>
 <body>
 <header>
  <div class="brand">
@@ -8,10 +8,10 @@
   <div class="nav"><button id="tg" class="on">Skyguessr</button><button id="tr">Skyrace</button></div>
  </div>
  <div class="right">
-  <span id="status">Loading constellation data...</span>
+  <span id="status">Loading constellation data...</span><span id="asave"></span>
   <div id="menuwrap">
    <button id="burger" aria-label="Saves menu" aria-expanded="false"><i></i><i></i><i></i></button>
-   <div id="menu" hidden><h2>Save slots</h2><div id="slots"></div></div>
+   <div id="menu" hidden><h2>Save slots</h2><p class="hint">Select a slot once and the site autosaves to it and reopens it on every visit.</p><div id="slots"></div><input type="file" id="imp" accept=".json,application/json" hidden></div>
   </div>
  </div>
 </header>
@@ -43,15 +43,15 @@
 
 <div id="race" hidden><div class="layout r">
  <div class="panel">
+  <div class="sec"><h2>Route</h2><div id="rinfo"></div><p id="rscore" class="hint"></p></div>
+  <div class="sec"><h2 id="nexth">Go to</h2><div id="rbtns" class="row"></div><div id="rres"></div></div>
   <div class="sec"><h2>Race setup</h2>
    <label>Minimum shortest route <input type="number" id="minsteps" min="2" max="6" value="2"> moves</label>
    <div class="row"><button id="newrace">New race</button><button id="restart">Restart race</button></div></div>
-  <div class="sec"><h2>Route</h2><div id="rinfo"></div></div>
-  <div class="sec"><h2 id="nexth">Go to</h2><div id="rbtns" class="row"></div><div id="rres"></div></div>
  </div>
- <div class="chartcol"><h2>Current constellation (IAU chart)</h2><div id="chartimgs"></div>
+<div class="chartcol"><h2>Current constellation (IAU chart)</h2><div id="chartimgs"></div>
   <p class="hint">Charts: IAU and Sky &amp; Telescope (Roger Sinnott &amp; Rick Fienberg), via <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY 4.0.</p></div>
 </div></div>
 </main>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body></html>
