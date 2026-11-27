@@ -138,15 +138,19 @@ let active=+localStorage.getItem('ioaa-active')||0,ready=false,timer=0;
 const get=i=>{try{return JSON.parse(localStorage.getItem('ioaa-slot-'+i))}catch(e){return null}};
 const put=(i,o,quiet)=>{try{localStorage.setItem('ioaa-slot-'+i,JSON.stringify(o));return true}catch(e){if(!quiet)alert('Could not save in this browser.');return false}};
 function snapshot(){return clone({game,G,R,S,ui:{tl:$('#tl').checked,tb:$('#tb').checked,step:$('#step').value,min:$('#minsteps').value,ans:$('#ans').value}})}
-function restore(s){Object.assign(G,s.G);Object.assign(R,s.R);Object.assign(S,s.S||{});const u=s.ui||{};
- $('#xs').value=S.cross;$('#xsv').textContent=S.cross.toFixed(1)+'x';$('#rf').checked=S.rndFov;
+/* everything a slot owns goes back to its default (counters, settings, overlays, step, race setting, typed answer) */
+function defaults(){Object.assign(S,{cross:1,rndFov:false});Object.assign(G,{fov:145,ok:0,miss:0});Object.assign(R,{total:0,last:0,races:0,counted:false});
+ $('#tl').checked=$('#tb').checked=false;$('#step').value='5';$('#minsteps').value='2';$('#ans').value=''}
+const syncSettings=()=>{$('#xs').value=S.cross;$('#xsv').textContent=S.cross.toFixed(1)+'x';$('#rf').checked=S.rndFov};
+function fresh(){defaults();R.start='';R.done=false;newRound();newRace();syncSettings();show(game)} /* brand-new state, same open tab */
+function restore(s){defaults();Object.assign(G,s.G);Object.assign(R,s.R);Object.assign(S,s.S||{});const u=s.ui||{};syncSettings();
  $('#tl').checked=!!u.tl;$('#tb').checked=!!u.tb;if(u.step)$('#step').value=u.step;if(u.min)$('#minsteps').value=u.min;$('#ans').value=u.ans||'';
  game=s.game;ui();draw();drawRace();show(game)}
 function saveNow(){clearTimeout(timer);if(!ready||!active)return;const s=get(active);put(active,{started:(s&&s.started)||Date.now(),all:snapshot()},true)}
 function saveSoon(){if(!ready||!active)return;clearTimeout(timer);timer=setTimeout(saveNow,500)}
 const asave=()=>{$('#islot').value=active||1;$('#asave').textContent=active?`Autosave: slot ${active}`:'Autosave off: pick a slot in the menu'};
-function select(i){saveNow();const s=get(i);active=i;localStorage.setItem('ioaa-active',i);
- if(s&&s.all)restore(s.all);else put(i,{started:Date.now(),all:snapshot()});slots();asave();$('#menu').hidden=$('#setmenu').hidden=true}
+function select(i){saveNow();const s=get(i),from=active;active=i;localStorage.setItem('ioaa-active',i);
+ if(s&&s.all)restore(s.all);else{if(from)fresh();put(i,{started:Date.now(),all:snapshot()})}slots();asave();$('#menu').hidden=$('#setmenu').hidden=true}
 function exportSlot(i){saveNow();const s=get(i);if(!s||!s.all)return alert('This slot is empty.');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'iloveastro',version:1,started:s.started,all:s.all})],{type:'application/json'}));
  a.download=`iloveastro-slot${i}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
@@ -161,7 +165,7 @@ function slots(){const el=$('#slots');el.innerHTML='';
   d.append(`Slot ${i}${active===i?' (active)':''}: ${has?'started '+(s.started?new Date(s.started).toLocaleString():'(time unknown)'):'empty'}`,r);
   const add=(t,f)=>{const b=document.createElement('button');b.textContent=t;b.onclick=f;r.append(b)};
   add('Select',()=>select(i));
-  add('Clear',()=>{if(!has||!confirm(`Delete slot ${i}?`))return;localStorage.removeItem('ioaa-slot-'+i);if(active===i){active=0;localStorage.removeItem('ioaa-active')}slots();asave()});
+  add('Clear',()=>{if(!has||!confirm(`Delete slot ${i}?`))return;localStorage.removeItem('ioaa-slot-'+i);if(active===i){active=0;localStorage.removeItem('ioaa-active');fresh()}slots();asave()});
   el.append(d)}}
 function wire(){
  $('#tg').onclick=()=>show('guess');$('#tr').onclick=()=>show('race');
@@ -188,6 +192,6 @@ function wire(){
  cv.onwheel=e=>{e.preventDefault();setFov(G.fov*(e.deltaY>0?1.1:.91))}}
 (async()=>{
  try{const[b,s,l,fab]=await Promise.all([load('constellations.bounds.min.geojson'),load('stars.6.min.geojson'),load('constellations.lines.min.geojson').catch(()=>({features:[]})),loadFab().catch(()=>null)]);
-  prep(b,s,l,fab);wire();newRound();newRace();ready=true;{const sv=active&&get(active);if(sv&&sv.all)restore(sv.all);else active=0}slots();asave();$('#status').textContent=`Ready (v9): ${ids.length} constellations, ${segs.length?'Sky & Telescope':'fallback'} lines`}
+  prep(b,s,l,fab);wire();newRound();newRace();ready=true;{const sv=active&&get(active);if(sv&&sv.all)restore(sv.all);else active=0}slots();asave();$('#status').textContent=`Ready (v10): ${ids.length} constellations, ${segs.length?'Sky & Telescope':'fallback'} lines`}
  catch(e){$('#status').textContent='Error: '+e.message+' (see README)'}
 })();

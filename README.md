@@ -7,7 +7,7 @@ Static site (no build step): `index.html`, `style.css`, `app.js`.
 3. Open `https://<username>.github.io/<repo>/`.
 
 If you update a deployed copy and still see an old design, hard-refresh (Ctrl+Shift+R).
-The header shows "Ready (v9)" when the latest script is loaded.
+The header shows "Ready (v10)" when the latest script is loaded.
 
 ## Data
 Constellation boundaries (IAU, J2000), stars (to mag 6) and constellation lines come from
@@ -35,5 +35,6 @@ The file-name logic is the `chart()` function in `app.js`.
 - Neighbours are computed from shared boundary vertices; Serpens is treated as one constellation.
 - Skyrace "at least N moves away" means the shortest route has at least N moves.
 
+- Each slot owns its progress. Selecting a different slot, or clearing the active one, resets the counters, settings and overlays to defaults (the first slot you pick keeps whatever you have already played).
 - Skyrace score: 100 for a shortest route, minus 20 per extra move (minimum 0); skipping a race scores 0.
 - Settings (header): size of the circled X in Skyguessr, random field of view each round (off by default).
